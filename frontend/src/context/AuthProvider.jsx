@@ -4,17 +4,19 @@ import { AuthContext } from "./AuthContext";
 export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(null);
 
-    // Load token when app starts
+    // Load token on app start
     useEffect(() => {
         const storedToken = localStorage.getItem("authToken");
-        setToken(storedToken);
+        if (storedToken) setToken(storedToken);
     }, []);
 
+    // Login Method
     const login = (newToken) => {
         localStorage.setItem("authToken", newToken);
         setToken(newToken);
     };
 
+    // Logout Method
     const logout = () => {
         localStorage.removeItem("authToken");
         setToken(null);

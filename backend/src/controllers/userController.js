@@ -1,7 +1,7 @@
 import User from "../models/userModels.js";
 
 // =======================
-// UPDATE USER
+// UPDATE USER 
 // =======================
 export const updateUser = async (req, res) => {
   const { id } = req.params;
@@ -29,6 +29,7 @@ export const updateUser = async (req, res) => {
       message: "User updated successfully",
       user,
     });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
