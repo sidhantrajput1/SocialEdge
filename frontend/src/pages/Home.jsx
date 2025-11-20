@@ -4,7 +4,8 @@ import NavBar from '../components/Shared/NavBar';
 const Home = () => {
     return (
         <div>
-            <NavBar />
+            {/* <NavBar /> */}
+            Home page
         </div>
     );
 }
