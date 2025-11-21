@@ -11,7 +11,7 @@ const NavBar = () => {
     <div className="w-[250px] border-r  h-screen">
       <div className="p-4 flex flex-col justify-between h-full">
         {/*  logo section */}
-        <h3 className="font-bold text-2xl cursor-pointer">SocialEdge</h3>
+        <h3 className="font-bold text-2xl cursor-pointer">SidSpace</h3>
         {/* nav items */}
         <nav className="">
           <ul className="flex flex-col gap-5">
