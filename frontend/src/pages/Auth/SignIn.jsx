@@ -30,14 +30,17 @@ const SignIn = () => {
 
       console.log(res)
 
+
       if (res.data.success) {
         toast.success("Login successful!");
-
+        
         // Store token in localStorage AND update AuthContext
         localStorage.setItem("authToken", res.data.token);
-        login(res.data.token);
-
+        localStorage.setItem("user", JSON.stringify(res.data.user))
+        login(res.data.token, res.data.user);
+        
         navigate("/");
+        console.log("LOGIN RESPONSE USER:", res.data.user);
       } else {
         toast.error(res.data.message);
       }
@@ -90,7 +93,7 @@ const SignIn = () => {
 
           <button
             type="submit"
-            className="bg-blue-600 text-white py-2 rounded-md mt-2 hover:bg-blue-700 font-medium"
+            className="bg-blue-600 text-white py-2 rounded-md mt-2 hover:bg-blue-700 font-medium cursor-pointer"
           >
             Sign In
           </button>
