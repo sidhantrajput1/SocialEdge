@@ -14,8 +14,7 @@ const app = express();
 
 // database connection
 connectDB();
-// cloudinary connection
-// await connectCloudinary();
+
 
 // middleware
 app.use(cors({
@@ -23,6 +22,7 @@ app.use(cors({
         credentials: true,
     })
 );
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

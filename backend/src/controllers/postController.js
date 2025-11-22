@@ -49,3 +49,25 @@ export const createPost = async (req, res) => {
     });
   }
 };
+
+export const getAllPosts = async (req, res) => {
+  try {
+
+    const posts = await Post.find()
+    .populate("author", "name avatar")
+    .populate("comments.user", "name avatar")
+    .sort({ createdAt : -1})
+
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error fetching posts",
+    });
+  }
+};
