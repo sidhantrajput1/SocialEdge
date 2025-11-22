@@ -71,3 +71,27 @@ export const getAllPosts = async (req, res) => {
     });
   }
 };
+
+export const getPostById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const post = await Post.findById(id);
+        if (!post) {
+            return res.status(404).json({
+                success : false,
+                message : "Post not found"
+            })
+        }
+        return res.status(200).json({
+            success : true,
+            post,
+        })
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success : false,
+            message : "Server Error fetching post by ID",
+        })
+    }
+}
