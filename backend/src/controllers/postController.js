@@ -1,13 +1,15 @@
 import Post from "../models/postModels.js";
 import cloudinary from "../utils/cloudinary.js";
 
+// =============================================
+// CREATE POST
+// =============================================
 export const createPost = async (req, res) => {
   try {
     const { caption, userId, visibility } = req.body;
 
     let imageUrls = [];
 
-    // Upload multiple images
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const uploadPromise = new Promise((resolve, reject) => {
@@ -18,7 +20,6 @@ export const createPost = async (req, res) => {
               else resolve(result);
             }
           );
-
           stream.end(file.buffer);
         });
 
@@ -26,8 +27,6 @@ export const createPost = async (req, res) => {
         imageUrls.push(result.secure_url);
       }
     }
-
-    console.log("Cloudinary loaded:", cloudinary.uploader ? "YES" : "NO");
 
     const newPost = await Post.create({
       author: userId,
@@ -50,19 +49,20 @@ export const createPost = async (req, res) => {
   }
 };
 
+// =============================================
+// GET ALL POSTS
+// =============================================
 export const getAllPosts = async (req, res) => {
   try {
-
     const posts = await Post.find()
-    .populate("author", "name avatar")
-    .populate("comments.user", "name avatar")
-    .sort({ createdAt : -1})
+      .populate("author", "name avatar")
+      .populate("comments.user", "name avatar")
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
       posts,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -72,26 +72,112 @@ export const getAllPosts = async (req, res) => {
   }
 };
 
+// =============================================
+// GET POST BY ID
+// =============================================
 export const getPostById = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const post = await Post.findById(id);
-        if (!post) {
-            return res.status(404).json({
-                success : false,
-                message : "Post not found"
-            })
-        }
-        return res.status(200).json({
-            success : true,
-            post,
-        })
+  const { postId } = req.params;
 
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            success : false,
-            message : "Server Error fetching post by ID",
-        })
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
     }
-}
+
+    return res.status(200).json({
+      success: true,
+      post,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error fetching post by ID",
+    });
+  }
+};
+
+// =============================================
+// DELETE POST
+// =============================================
+export const deletePost = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const post = await Post.findByIdAndDelete(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Post deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error deleting post",
+    });
+  }
+};
+
+// =============================================
+// LIKE / UNLIKE POST
+// =============================================
+export const likePost = async (req, res) => {
+  const { postId } = req.params;
+  const { userId } = req.body;
+
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    const isLiked = post.likes.includes(userId);
+
+    if (isLiked) {
+      // unlike
+      post.likes = post.likes.filter(
+        (uid) => uid.toString() !== userId.toString()
+      );
+
+      await post.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Unliked the post",
+        likesCount: post.likes.length,
+      });
+    }
+
+    // like
+    post.likes.push(userId);
+    await post.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Liked the post",
+      likesCount: post.likes.length,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error liking post",
+    });
+  }
+};
