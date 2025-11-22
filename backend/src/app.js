@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import connectDB from "./utils/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import postRoutes from "./routes/postRoutes.js";
 import connectCloudinary from "./utils/cloudinary.js";
 
 dotenv.config();
@@ -14,7 +15,7 @@ const app = express();
 // database connection
 connectDB();
 // cloudinary connection
-await connectCloudinary();
+// await connectCloudinary();
 
 // middleware
 app.use(cors({
@@ -30,6 +31,7 @@ app.use(cookieParser());
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
 
 app.get("/", (req, res) => {
   res.send("SocialEdge Backend is running");
