@@ -217,3 +217,67 @@ export const getPostsByUser = async (req, res) => {
     });
   }
 };
+
+
+// =============================================
+// ADD COMMENT TO POST
+// =============================================
+
+export const addCommentToPost = async (req, res) => {
+    const { postId } = req.params;
+    const { userId, commentText } = req.body;
+
+    if (!commentText || commentText.trim() === "") {
+        return res.status(400).json({
+            success : false,
+            message : "Comment text cannot be empty"
+        })
+    }
+
+    if (!userId) {
+        return res.status(400).json({
+            success : false,
+            message : "userId is required in request body"
+        })
+    }
+
+    try {
+        const post = await Post.findById(postId);
+
+        if (!post) {
+            return res.status(404).json({
+                success : false,
+                message : "Post not found"
+            })
+        }
+
+        const newComment = {
+            user : userId,
+            text : commentText,
+            createdAt : new Date()
+        }
+
+        post.comments.push(newComment);
+
+        await post.save();
+
+        const populatedPost = await Post.findById(postId)
+            .populate("author", "name avatar")
+            .populate("comments.user", "name avatar");
+
+
+        res.status(200).json({
+            success : true,
+            message : "Comment added successfully",
+            post : populatedPost
+        })
+
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success : false,
+            message : "Server Error adding comment to post"
+        })
+    }
+}

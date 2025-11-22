@@ -6,6 +6,7 @@ import {
   getPostsByUser,
   likePost,
   getPostById,
+  addCommentToPost,
 } from "../controllers/postController.js";
 
 import { upload } from "../utils/multer.js";
@@ -14,6 +15,10 @@ const router = express.Router();
 
 // Create post
 router.post("/create", upload.array("images", 5), createPost);
+
+// Add comment to post
+router.post("/comment/:postId", addCommentToPost);
+
 
 // Get posts by user
 router.get("/user/:userId", getPostsByUser);
