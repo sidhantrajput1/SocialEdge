@@ -137,6 +137,15 @@ export const likePost = async (req, res) => {
   const { postId } = req.params;
   const { userId } = req.body;
 
+//   console.log("USER ID =>", userId);
+
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      message: "userId is required in request body",
+    });
+  }
+
   try {
     const post = await Post.findById(postId);
 
@@ -147,10 +156,12 @@ export const likePost = async (req, res) => {
       });
     }
 
+    // Remove null values from likes array (safety)
+    post.likes = post.likes.filter((uid) => uid !== null);
+
     const isLiked = post.likes.includes(userId);
 
     if (isLiked) {
-      // unlike
       post.likes = post.likes.filter(
         (uid) => uid.toString() !== userId.toString()
       );
@@ -164,11 +175,10 @@ export const likePost = async (req, res) => {
       });
     }
 
-    // like
     post.likes.push(userId);
     await post.save();
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Liked the post",
       likesCount: post.likes.length,
@@ -178,6 +188,32 @@ export const likePost = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server Error liking post",
+    });
+  }
+};
+
+// =============================================
+// GET POSTS BY USER
+// =============================================
+export const getPostsByUser = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const posts = await Post.find({ author: userId })
+      .populate("author", "name avatar")
+      .populate("comments.user", "name avatar")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Posts fetched successfully",
+      posts,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error fetching posts by user",
     });
   }
 };
