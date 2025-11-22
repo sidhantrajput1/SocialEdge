@@ -5,12 +5,16 @@ import cookieParser from "cookie-parser";
 import connectDB from "./utils/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import connectCloudinary from "./utils/cloudinary.js";
 
 dotenv.config();
 
 const app = express();
 
+// database connection
 connectDB();
+// cloudinary connection
+await connectCloudinary();
 
 // middleware
 app.use(cors({

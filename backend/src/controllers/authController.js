@@ -62,7 +62,9 @@ export const loginUser = async (req, res) => {
         message: "All fields are required",
       });
     }
+
     const user = await User.findOne({ username });
+    // console.log(user)
 
     if (!user) {
       return res.status(400).json({
