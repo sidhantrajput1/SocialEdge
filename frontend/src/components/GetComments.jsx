@@ -11,7 +11,7 @@ const GetComments = ({ postId, onClose }) => {
           `http://localhost:3000/api/posts/getAllComents/${postId}`
         );
         const data = await res.json();
-        console.log(data.comments)
+        // console.log(data.comments)
         setComments(data.comments || []);
       } catch (error) {
         console.error("Error fetching comments", error);
