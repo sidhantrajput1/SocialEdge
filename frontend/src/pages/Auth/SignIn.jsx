@@ -28,7 +28,7 @@ const SignIn = () => {
         credentials
       );
 
-      console.log(res)
+      // console.log(res)
 
 
       if (res.data.success) {
@@ -40,7 +40,7 @@ const SignIn = () => {
         login(res.data.token, res.data.user);
         
         navigate("/");
-        console.log("LOGIN RESPONSE USER:", res.data.user);
+        // console.log("LOGIN RESPONSE USER:", res.data.user);
       } else {
         toast.error(res.data.message);
       }

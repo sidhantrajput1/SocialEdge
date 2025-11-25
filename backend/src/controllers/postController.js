@@ -381,15 +381,15 @@ export const updateCommentOnPost = async (req, res) => {
 };
 
 // =============================================
-// GET ALL COMMENTS FOR A SPECIFIC USER
+// GET ALL COMMENTS FOR A SPECIFIC POST
 // =============================================
 export const getAllComments = async (req, res) => {
     try {
       const { postId } = req.params;
 
       const post = await Post.findById(postId)
-        .populate("comments.user", "name avatar")
-        .populate("author", "name avatar")
+      .populate("comments.user", "name username avatar email")
+      .populate("author", "name username avatar email");
 
       if (!post) {
         return res.status(404).json({
@@ -401,7 +401,8 @@ export const getAllComments = async (req, res) => {
       return res.status(200).json({
         success : true,
         count : post.comments.length,
-        comments : post.comments
+        comments : post.comments,
+        post
       })
 
     } catch (error) {

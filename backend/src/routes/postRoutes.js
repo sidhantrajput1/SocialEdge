@@ -9,6 +9,7 @@ import {
   addCommentToPost,
   deleteCommentFromPost,
   updateCommentOnPost,
+  getAllComments,
 } from "../controllers/postController.js";
 
 import { upload } from "../utils/multer.js";
@@ -29,6 +30,9 @@ router.get("/user/:userId", getPostsByUser);
 
 // Get all posts
 router.get("/all", getAllPosts);
+
+// GET COMMENT FOR SPECIFIC POST
+router.get("/getAllComents/:postId", getAllComments);
 
 // Get single post
 router.get("/:postId", getPostById);
