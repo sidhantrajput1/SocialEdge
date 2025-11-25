@@ -137,7 +137,7 @@ export const likePost = async (req, res) => {
   const { postId } = req.params;
   const { userId } = req.body;
 
-//   console.log("USER ID =>", userId);
+  //   console.log("USER ID =>", userId);
 
   if (!userId) {
     return res.status(400).json({
@@ -218,66 +218,170 @@ export const getPostsByUser = async (req, res) => {
   }
 };
 
-
 // =============================================
 // ADD COMMENT TO POST
 // =============================================
 
 export const addCommentToPost = async (req, res) => {
-    const { postId } = req.params;
-    const { userId, commentText } = req.body;
+  const { postId } = req.params;
+  const { userId, commentText } = req.body;
 
-    if (!commentText || commentText.trim() === "") {
-        return res.status(400).json({
-            success : false,
-            message : "Comment text cannot be empty"
-        })
+  if (!commentText || commentText.trim() === "") {
+    return res.status(400).json({
+      success: false,
+      message: "Comment text cannot be empty",
+    });
+  }
+
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      message: "userId is required in request body",
+    });
+  }
+
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
     }
 
-    if (!userId) {
-        return res.status(400).json({
-            success : false,
-            message : "userId is required in request body"
-        })
+    const newComment = {
+      user: userId,
+      text: commentText,
+      createdAt: new Date(),
+    };
+
+    post.comments.push(newComment);
+
+    await post.save();
+
+    const populatedPost = await Post.findById(postId)
+      .populate("author", "name avatar")
+      .populate("comments.user", "name avatar");
+
+    res.status(200).json({
+      success: true,
+      message: "Comment added successfully",
+      post: populatedPost,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error adding comment to post",
+    });
+  }
+};
+
+// =============================================
+// DELETE COMMENT FROM POST
+// =============================================
+export const deleteCommentFromPost = async (req, res) => {
+  const { postId, commentId } = req.params;
+
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
     }
 
-    try {
-        const post = await Post.findById(postId);
+    const commentIndex = post.comments.findIndex(
+      (c) => c._id.toString() === commentId
+    );
 
-        if (!post) {
-            return res.status(404).json({
-                success : false,
-                message : "Post not found"
-            })
-        }
-
-        const newComment = {
-            user : userId,
-            text : commentText,
-            createdAt : new Date()
-        }
-
-        post.comments.push(newComment);
-
-        await post.save();
-
-        const populatedPost = await Post.findById(postId)
-            .populate("author", "name avatar")
-            .populate("comments.user", "name avatar");
-
-
-        res.status(200).json({
-            success : true,
-            message : "Comment added successfully",
-            post : populatedPost
-        })
-
-
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            success : false,
-            message : "Server Error adding comment to post"
-        })
+    if (commentIndex === -1) {
+      return res.status(400).json({
+        success: false,
+        message: "Comment not found in the post",
+      });
     }
-}
+
+    post.comments.splice(commentIndex, 1);
+
+    await post.save();
+
+    const populatedPost = await Post.findById(postId)
+      .populate("author", "name avatar")
+      .populate("comments.user", "name avatar");
+
+    res.status(200).json({
+      success: true,
+      message: "Comment deleted successfully",
+      post: populatedPost,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error deleting comment from post",
+    });
+  }
+};
+
+// ============================================
+// UPDATE COMMENT ON POST
+// ============================================
+
+export const updateCommentOnPost = async (req, res) => {
+  const { postId, commentId } = req.params;
+  const { commentText } = req.body;
+
+  if (!commentText || commentText.trim() === "") {
+    return res.status(400).json({
+      success: false,
+      message: "Comment text cannot be empty",
+    });
+  }
+
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    const comment = post.comments.id(commentId);
+    if (!comment) {
+      return res.status(400).json({
+        success: false,
+        message: "Comment not found in the post",
+      });
+    }
+
+    comment.text = commentText;
+    comment.updatedAt = new Date();
+    await post.save();
+
+    const populatedPost = await Post.findById(postId)
+      .populate("author", "name avatar")
+      .populate("comments.user", "name avatar");
+
+    res.status(200).json({
+      success: true,
+      message: "Comment updated successfully",
+      post: populatedPost,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error updating comment on post",
+    });
+  }
+};
+
+// =============================================
+// END OF FILE
+// =============================================

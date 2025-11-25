@@ -7,6 +7,8 @@ import {
   likePost,
   getPostById,
   addCommentToPost,
+  deleteCommentFromPost,
+  updateCommentOnPost,
 } from "../controllers/postController.js";
 
 import { upload } from "../utils/multer.js";
@@ -19,6 +21,8 @@ router.post("/create", upload.array("images", 5), createPost);
 // Add comment to post
 router.post("/comment/:postId", addCommentToPost);
 
+// update comment to post
+router.put("/comment/:postId/:commentId", updateCommentOnPost);
 
 // Get posts by user
 router.get("/user/:userId", getPostsByUser);
@@ -31,6 +35,9 @@ router.get("/:postId", getPostById);
 
 // Delete post
 router.delete("/:postId", deletePost);
+
+// delete post
+router.delete("/comment/:postId/:commentId", deleteCommentFromPost);
 
 // Like/Unlike
 router.patch("/like/:postId", likePost);
