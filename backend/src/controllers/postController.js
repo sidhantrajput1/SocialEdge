@@ -221,7 +221,6 @@ export const getPostsByUser = async (req, res) => {
 // =============================================
 // ADD COMMENT TO POST
 // =============================================
-
 export const addCommentToPost = async (req, res) => {
   const { postId } = req.params;
   const { userId, commentText } = req.body;
@@ -330,7 +329,6 @@ export const deleteCommentFromPost = async (req, res) => {
 // ============================================
 // UPDATE COMMENT ON POST
 // ============================================
-
 export const updateCommentOnPost = async (req, res) => {
   const { postId, commentId } = req.params;
   const { commentText } = req.body;
@@ -381,6 +379,39 @@ export const updateCommentOnPost = async (req, res) => {
     });
   }
 };
+
+// =============================================
+// GET ALL COMMENTS FOR A SPECIFIC USER
+// =============================================
+export const getAllComments = async (req, res) => {
+    try {
+      const { postId } = req.params;
+
+      const post = await Post.findById(postId)
+        .populate("comments.user", "name avatar")
+        .populate("author", "name avatar")
+
+      if (!post) {
+        return res.status(404).json({
+          success : false,
+          message : "Post not found"
+        })
+      }
+
+      return res.status(200).json({
+        success : true,
+        count : post.comments.length,
+        comments : post.comments
+      })
+
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({
+        success : false,
+        message : "Internal Server Error"
+      })
+    }
+} 
 
 // =============================================
 // END OF FILE
