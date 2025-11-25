@@ -55,8 +55,8 @@ export const createPost = async (req, res) => {
 export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate("author", "name avatar")
-      .populate("comments.user", "name avatar")
+      .populate("author", "name avatar username")
+      .populate("comments.user", "name avatar username")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
